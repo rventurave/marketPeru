@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar producto — MarketPeru</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="publish-layout">
+    <div class="page-header">
+      <h1>Publicar producto</h1>
+      <p>Completa la información de tu publicación.</p>
+    </div>
+
+    <div id="publish-alert" class="form-alert form-alert--error" hidden></div>
+
+    <div class="card publish-card">
+      <form id="publish-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="title">Nombre del producto</label>
+          <input class="form-input" id="title" name="title" type="text" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="description">Descripción</label>
+          <textarea class="form-input" id="description" name="description" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="price">Precio (PEN)</label>
+          <input class="form-input" id="price" name="price" type="number" min="0" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="category">Categoría</label>
+          <select class="form-input" id="category" name="category" required>
+            <option value="">Selecciona una categoría</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="location">Ubicación</label>
+          <input class="form-input" id="location" name="location" type="text">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Fotografías</span>
+          <div class="photo-upload" id="photo-upload">
+            <label class="photo-upload__drop" for="photo-input">Agregar fotos</label>
+            <input class="visually-hidden" id="photo-input" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          </div>
+          <span class="form-hint">JPEG, PNG o WebP · máx. 5 MB por imagen · máx. 8 imágenes.</span>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-block" type="submit" id="submit-btn">Publicar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { isAuthenticated, redirectToLogin } from './js/auth.js';
+    import { fetchCategories } from './js/categories.js';
+    import { toast } from './js/ui.js';
+
+    await renderNavbar(document.getElementById('site-header'));
+    renderFooter(document.getElementById('site-footer'));
+
+    if (!isAuthenticated()) {
+      redirectToLogin('publish.html');
+    }
+
+    const categorySelect = document.getElementById('category');
+    try {
+      const data = await fetchCategories();
+      categorySelect.insertAdjacentHTML(
+        'beforeend',
+        data.data.map((c) => `<option value="${c.id}">${c.name}</option>`).join(''),
+      );
+    } catch {
+      /* categorías opcionales en la vista */
+    }
+
+    const photoInput = document.getElementById('photo-input');
+    const photoUpload = document.getElementById('photo-upload');
+    photoInput.addEventListener('change', () => {
+      for (const file of photoInput.files) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.className = 'photo-upload__preview';
+          div.innerHTML = `<img src="${e.target.result}" alt="Vista previa">`;
+          photoUpload.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('publish-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      toast('La publicación se habilitará cuando el backend de publicaciones esté listo', 'info');
+    });
+  </script>
+</body>
+</html>

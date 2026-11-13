@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil — MarketPeru</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container" style="max-width: 720px;">
+    <div id="profile"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { isAuthenticated, redirectToLogin } from './js/auth.js';
+    import { renderProfile } from './js/profile.js';
+
+    await renderNavbar(document.getElementById('site-header'));
+    renderFooter(document.getElementById('site-footer'));
+
+    if (!isAuthenticated()) {
+      redirectToLogin('profile.html');
+    } else {
+      renderProfile(document.getElementById('profile'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producto — MarketPeru</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container">
+    <div id="product-detail"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { fetchProduct, renderProductDetail } from './js/products.js';
+    import { isAuthenticated, redirectToLogin } from './js/auth.js';
+    import { emptyState } from './js/components.js';
+    import { toast } from './js/ui.js';
+
+    const container = document.getElementById('product-detail');
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    await renderNavbar(document.getElementById('site-header'));
+    renderFooter(document.getElementById('site-footer'));
+
+    if (!id) {
+      container.innerHTML = emptyState({ title: 'Producto no encontrado', message: 'Falta el identificador del producto.' });
+    } else {
+      try {
+        const data = await fetchProduct(id);
+        renderProductDetail(container, data.data);
+
+        const contactBtn = document.getElementById('contact-seller');
+        contactBtn.addEventListener('click', () => {
+          if (!isAuthenticated()) {
+            redirectToLogin(`product.html?id=${id}`);
+          } else {
+            toast('La mensajería estará disponible próximamente', 'info');
+          }
+        });
+      } catch (err) {
+        if (err.status === 404) {
+          container.innerHTML = emptyState({ title: 'Producto no encontrado' });
+        } else {
+          container.innerHTML = emptyState({ title: 'Error de conexión', message: err.message });
+        }
+      }
+    }
+  </script>
+</body>
+</html>

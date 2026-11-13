@@ -1,0 +1,81 @@
+/* =============================================================================
+   Estilos base, layout y utilidades generales
+   ============================================================================= */
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+main {
+  min-height: 60vh;
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-7);
+}
+
+.section-title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-4);
+  color: var(--color-text);
+}
+
+.section-subtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.muted {
+  color: var(--color-text-secondary);
+}
+
+.text-small {
+  font-size: var(--font-size-sm);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.page-header {
+  margin-bottom: var(--space-5);
+}
+
+.page-header h1 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-2);
+}
+
+.page-header p {
+  color: var(--color-text-secondary);
+}
+
+/* Estado de carga y bloqueo */
+[hidden] {
+  display: none !important;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

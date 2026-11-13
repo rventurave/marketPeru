@@ -1,0 +1,90 @@
+/* =============================================================================
+   Diseño responsive
+   ============================================================================= */
+
+/* --- Tablets ---------------------------------------------------------------- */
+
+@media (max-width: 992px) {
+  .catalog-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .filter-panel__group {
+    flex: 1 1 160px;
+  }
+
+  .product-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Móviles ---------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .navbar__inner {
+    height: 56px;
+    gap: var(--space-2);
+  }
+
+  .navbar__search {
+    display: none;
+  }
+
+  .navbar__link .navbar__link-label {
+    display: none;
+  }
+
+  .navbar__actions {
+    gap: var(--space-1);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .product-card__title {
+    font-size: var(--font-size-sm);
+  }
+
+  .product-card__price {
+    font-size: var(--font-size-base);
+  }
+
+  .filter-panel {
+    flex-direction: column;
+  }
+
+  .filter-panel__range {
+    flex-direction: column;
+  }
+
+  .auth-card {
+    padding: var(--space-4);
+  }
+
+  .publish-card {
+    padding: var(--space-4);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}

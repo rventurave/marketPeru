@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendedor — MarketPeru</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container">
+    <div id="seller-profile"></div>
+    <section style="margin-top: var(--space-6);">
+      <h2 class="section-title">Opiniones</h2>
+      <div id="seller-reviews"></div>
+      <div id="reviews-pagination"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { fetchSeller, renderSeller, fetchSellerReviews, renderReviews, renderReviewPagination } from './js/sellers.js';
+    import { emptyState } from './js/components.js';
+
+    const profileEl = document.getElementById('seller-profile');
+    const reviewsEl = document.getElementById('seller-reviews');
+    const reviewsPaginationEl = document.getElementById('reviews-pagination');
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    await renderNavbar(document.getElementById('site-header'));
+    renderFooter(document.getElementById('site-footer'));
+
+    async function loadReviews(page = 1) {
+      reviewsEl.innerHTML = '<div class="skeleton skeleton-card" style="height:120px;"></div>';
+      try {
+        const data = await fetchSellerReviews(id, { page, limit: 5 });
+        renderReviews(reviewsEl, data);
+        renderReviewPagination(reviewsPaginationEl, data.meta, loadReviews);
+      } catch {
+        reviewsEl.innerHTML = emptyState({ title: 'No se pudieron cargar las opiniones' });
+      }
+    }
+
+    if (!id) {
+      profileEl.innerHTML = emptyState({ title: 'Vendedor no encontrado' });
+    } else {
+      try {
+        const data = await fetchSeller(id);
+        renderSeller(profileEl, data.data);
+        await loadReviews();
+      } catch (err) {
+        if (err.status === 404) {
+          profileEl.innerHTML = emptyState({ title: 'Vendedor no encontrado' });
+        } else {
+          profileEl.innerHTML = emptyState({ title: 'Error de conexión', message: err.message });
+        }
+      }
+    }
+  </script>
+</body>
+</html>

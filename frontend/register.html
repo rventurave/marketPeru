@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro — MarketPeru</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="auth-layout">
+    <div class="card auth-card">
+      <h1 class="auth-card__title">Crear cuenta</h1>
+      <p class="auth-card__subtitle">Regístrate para contactar vendedores y publicar productos.</p>
+
+      <div id="form-alert" class="form-alert form-alert--error" hidden></div>
+
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="name">Nombre</label>
+          <input class="form-input" id="name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Correo electrónico</label>
+          <input class="form-input" id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <input class="form-input" id="password" name="password" type="password" autocomplete="new-password" required>
+          <span class="form-hint">Mínimo 8 caracteres, con una letra y un número.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirmar contraseña</label>
+          <input class="form-input" id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="form-group">
+          <label class="checkbox">
+            <input type="checkbox" id="terms" required>
+            <span>Acepto los términos y condiciones del marketplace.</span>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-block" type="submit" id="submit-btn">Registrarse</button>
+        </div>
+      </form>
+
+      <div class="form-divider">o</div>
+      <p class="text-small muted" style="text-align:center;">
+        ¿Ya tienes cuenta? <a href="login.html" id="login-link" style="color:var(--color-primary-dark);font-weight:600;">Inicia sesión</a>
+      </p>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { register, redirectAfterAuth } from './js/auth.js';
+
+    const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '';
+    const loginLink = document.getElementById('login-link');
+    if (returnTo) loginLink.href = `login.html?returnTo=${encodeURIComponent(returnTo)}`;
+
+    await renderNavbar(document.getElementById('site-header'));
+    renderFooter(document.getElementById('site-footer'));
+
+    const form = document.getElementById('register-form');
+    const alert = document.getElementById('form-alert');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alert.hidden = true;
+
+      if (!form.terms.checked) {
+        alert.textContent = 'Debes aceptar los términos y condiciones';
+        alert.hidden = false;
+        return;
+      }
+
+      const payload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        password: form.password.value,
+        confirmPassword: form.confirmPassword.value,
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Creando cuenta...';
+      try {
+        await register(payload);
+        redirectAfterAuth();
+      } catch (err) {
+        alert.textContent = err.message || 'No se pudo crear la cuenta';
+        alert.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Registrarse';
+      }
+    });
+  </script>
+</body>
+</html>

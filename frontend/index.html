@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarketPeru — Marketplace</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container">
+    <h1 class="visually-hidden">Catálogo de MarketPeru</h1>
+
+    <section class="page-header">
+      <h2 class="section-title">Categorías</h2>
+      <div id="categories" class="categories" aria-label="Categorías"></div>
+    </section>
+
+    <div class="catalog-layout">
+      <aside class="filter-panel" aria-label="Filtros">
+        <div class="filter-panel__group">
+          <label class="filter-panel__label" for="filter-category">Categoría</label>
+          <select id="filter-category">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="filter-panel__group">
+          <span class="filter-panel__label">Precio (PEN)</span>
+          <div class="filter-panel__range">
+            <input id="filter-min" type="number" min="0" placeholder="Mínimo">
+            <input id="filter-max" type="number" min="0" placeholder="Máximo">
+          </div>
+        </div>
+        <div class="filter-panel__group">
+          <label class="filter-panel__label" for="filter-location">Ubicación</label>
+          <input id="filter-location" type="text" placeholder="Ej: Lima">
+        </div>
+        <div class="filter-panel__group">
+          <label class="filter-panel__label" for="filter-sort">Ordenar por</label>
+          <select id="filter-sort">
+            <option value="recent">Más recientes</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-block" id="clear-filters" type="button">Limpiar filtros</button>
+      </aside>
+
+      <section aria-label="Productos">
+        <div id="product-grid" class="product-grid"></div>
+        <div id="pagination"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script type="module">
+    import { renderNavbar, renderFooter } from './js/navigation.js';
+    import { fetchProducts, renderProductGrid, renderPagination } from './js/products.js';
+    import { fetchCategories, renderCategories } from './js/categories.js';
+    import { readFilters, writeFilters } from './js/search.js';
+    import { skeletonGrid } from './js/components.js';
+    import { debounce, toast } from './js/ui.js';
+
+    const grid = document.getElementById('product-grid');
+    const paginationEl = document.getElementById('pagination');
+    const categoriesEl = document.getElementById('categories');
+    const categorySelect = document.getElementById('filter-category');
+    const minInput = document.getElementById('filter-min');
+    const maxInput = document.getElementById('filter-max');
+    const locationInput = document.getElementById('filter-location');
+    const sortSelect = document.getElementById('filter-sort');
+    const clearBtn = document.getElementById('clear-filters');
+
+    let filters = readFilters();
+
+    function syncForm() {
+      categorySelect.value = filters.category_id;
+      minInput.value = filters.min_price;
+      maxInput.value = filters.max_price;
+      locationInput.value = filters.location;
+      sortSelect.value = filters.sort;
+    }
+
+    async function loadCategories() {
+      try {
+        const data = await fetchCategories();
+        renderCategories(categoriesEl, data.data);
+        const opts = data.data.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
+        categorySelect.insertAdjacentHTML('beforeend', opts);
+      } catch {
+        categoriesEl.textContent = 'No se pudieron cargar las categorías';
+      }
+    }
+
+    async function loadProducts() {
+      grid.innerHTML = skeletonGrid();
+      paginationEl.innerHTML = '';
+      try {
+        const data = await fetchProducts(filters);
+        renderProductGrid(grid, data);
+        renderPagination(paginationEl, data.meta, (page) => {
+          filters.page = page;
+          writeFilters(filters);
+          loadProducts();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      } catch (err) {
+        grid.innerHTML = `<div class="empty-state"><h3 class="empty-state__title">Error de conexión</h3><p>${err.message}</p></div>`;
+      }
+    }
+
+    const reload = debounce(() => {
+      filters.page = 1;
+      writeFilters(filters);
+      loadProducts();
+    }, 350);
+
+    categorySelect.addEventListener('change', () => { filters.category_id = categorySelect.value; reload(); });
+    minInput.addEventListener('input', debounce(() => { filters.min_price = minInput.value; reload(); }, 400));
+    maxInput.addEventListener('input', debounce(() => { filters.max_price = maxInput.value; reload(); }, 400));
+    locationInput.addEventListener('input', debounce(() => { filters.location = locationInput.value; reload(); }, 400));
+    sortSelect.addEventListener('change', () => { filters.sort = sortSelect.value; reload(); });
+    clearBtn.addEventListener('click', () => {
+      filters = { q: '', category_id: '', min_price: '', max_price: '', location: '', sort: 'recent', page: 1 };
+      writeFilters(filters);
+      syncForm();
+      loadProducts();
+    });
+
+    // Si hay una búsqueda en la URL, reflejarla en el buscador del navbar.
+    if (filters.q) {
+      const navInput = document.getElementById('search-input');
+      if (navInput) navInput.value = filters.q;
+    }
+
+    await renderNavbar(document.getElementById('site-header'), { showSearch: true });
+    renderFooter(document.getElementById('site-footer'));
+    syncForm();
+    await loadCategories();
+    await loadProducts();
+  </script>
+</body>
+</html>

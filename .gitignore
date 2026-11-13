@@ -1,0 +1,58 @@
+# --- Dependencias ---
+node_modules/
+
+# --- Build / salida ---
+dist/
+build/
+public/build/
+*.map
+
+# --- Wrangler ---
+.wrangler/
+.dev.vars
+
+# --- Variables de entorno y secretos (NUNCA subir) ---
+.env
+.env.*
+!.env.example
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Herramienta Command Code (preferencias internas) ---
+.commandcode/
+
+# --- Sistema operativo / editores ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Otros ---
+*.local
+coverage/
+# --- Agentes de IA: config local y secretos ---
+.claude/settings.local.json
+CLAUDE.local.md
+.mcp.json              # solo si contiene tokens
+.cursor/mcp.json       # solo si contiene tokens
+
+# --- Agentes: salidas, trazas y memoria ---
+.agent_workspace/
+transcripts/
+traces/
+tmp/
+
+# --- Credenciales sueltas ---
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# --- Cloudflare / Wrangler extra ---
+.mf/
+worker-configuration.d.ts   # opcional, es autogenerado

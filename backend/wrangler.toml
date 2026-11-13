@@ -1,0 +1,34 @@
+# Configuración del Worker de Cloudflare (backend del marketplace).
+# Completar los valores vacíos antes de `wrangler dev` o `wrangler deploy`.
+
+name = "marketperu-api"
+main = "src/index.js"
+compatibility_date = "2026-11-12"
+
+# ID de cuenta de Cloudflare. Obtener con: wrangler whoami
+# account_id = ""
+
+# --- Base de datos D1 ---
+# Crear la base con: wrangler d1 create marketperu
+# Copiar el database_id devuelto por el comando en el campo de abajo.
+[[d1_databases]]
+binding = "DB"
+database_name = "marketperu"
+database_id = ""
+
+# --- Almacenamiento de imágenes R2 ---
+# Crear el bucket con: wrangler r2 bucket create marketperu-images
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "marketperu-images"
+
+# Variables de entorno no secretas.
+[vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGINS = "http://localhost:8787,http://127.0.0.1:8787,http://localhost:8000,http://127.0.0.1:8000"
+# Límites de rate limiting (valores de desarrollo; ajustar en producción).
+AUTH_RATE_LIMIT_MAX = "1000"
+AUTH_RATE_LIMIT_WINDOW_MS = "900000"
+
+# Secretos (NO se definen en este archivo):
+#   wrangler secret put SESSION_SECRET
